@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Translation App</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #f1efef; /* Light gray background */
+            font-family: Arial, sans-serif;
+            color: #333333; /* Dark gray text */
+        }
+        h1 {
+            color: #05df9e ; /* Green */
+        }
+        button {
+            background-color: #37cdff; /* Blue */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        button:disabled {
+            background-color: #cccccc; /* Disabled button color */
+        }
+        #translatedText {
+            color: #FF5722; /* Orange color for translated text */
+        }
+    </style>
+</head>
+<body>
+    <h1>YAPPER 🗣</h1>
+
+    <!-- Dropdown to select target language -->
+    <label for="targetLang">Select Target Language:</label>
+    <select id="targetLang">
+        <option value="es">Spanish</option>
+        <option value="en">English</option>
+    </select>
+
+    <br><br>
+
+    <button id="startRecording">Start Recording</button>
+    <button id="stopRecording" disabled>Stop Recording</button>
+    <button id="translateAudio" disabled>Translate Audio</button>
+    <button id="playAudio" disabled>Play Translated Audio</button>
+
+    <br><br>
+
+    <!-- Display translated text -->
+    <h3>Translated Text:</h3>
+    <p id="translatedText" data-audioUrl="" style="border: 1px solid #ccc; padding: 10px;">Translation text here</p>
+    
+    <!-- Thumbs Down button for incorrect translation -->
+    <button id="thumbsDown" disabled>👎</button>
+
+    <script>
+        $(document).ready(function() {
+            $('#startRecording').click(function() {
+                $.post('/start_recording', function(response) {
+                    alert(response.message);
+                    $('#startRecording').prop('disabled', true);
+                    $('#stopRecording').prop('disabled', false);
+                    $('#translateAudio').prop('disabled', true);
+                });
+            });
+
+            $('#stopRecording').click(function() {
+                $.post('/stop_recording', function(response) {
+                    alert(response.message);
+                    $('#startRecording').prop('disabled', false);
+                    $('#stopRecording').prop('disabled', true);
+                    $('#translateAudio').prop('disabled', false);
+                });
+            });
+
+            $('#translateAudio').click(function() {
+                var targetLang = $('#targetLang').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/translate_audio',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ target_lang: targetLang }),
+                    success: function(response) {
+                        alert(response.message);
+                        $('#translatedText').text(response.translated_text);
+                        $('#translatedText').data('audioUrl', response.translated_file);
+                        $('#playAudio').prop('disabled', false);
+                        $('#thumbsDown').prop('disabled', false);  // Enable thumbs down button
+                    },
+                    error: function(response) {
+                        alert('Error: ' + response.message);
+                    }
+                });
+            });
+
+            $('#playAudio').click(function() {
+                var translatedFileUrl = $('#translatedText').data('audioUrl');
+
+                if (translatedFileUrl) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/play_translation',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ translated_file: translatedFileUrl }),
+                        success: function(response) {
+                            var audio = new Audio(response.audio_url);
+                            audio.play();
+                            alert(response.message);
+                        },
+                        error: function(response) {
+                            alert('Error: Could not play audio. ' + response.responseJSON.message);
+                        }
+                    });
+                } else {
+                    alert('Error: No translated audio file found.');
+                }
+            });
+
+            // Handle thumbs down button click
+            $('#thumbsDown').click(function() {
+                var badTranslation = $('#translatedText').text();
+                var targetLang = $('#targetLang').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/bad_translation',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        bad_translation: badTranslation,
+                        target_lang: targetLang
+                    }),
+                    success: function(response) {
+                        alert(response.message);
+                    },
+                    error: function(response) {
+                        alert('Error: ' + response.responseJSON.message);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
