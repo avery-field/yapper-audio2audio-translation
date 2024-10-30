@@ -10,8 +10,8 @@ Clone this repository and navigate to the project directory:
 
 
 ```
-git clone https://github.com/<username>/<project-name>.git
-cd <project-name>
+git clone https://github.com/avery-field/yapper-audio2audio-translation.git
+cd yapper-audio2audio-translation
 ```
 
 Create a virtual environment and install the required packages:
