@@ -25,8 +25,6 @@ pip install -r requirements.txt
 Run the app locally using Flask:
 
 ```
-export FLASK_APP=app.py
-export FLASK_ENV=development
-flask run
+python flask_webapp/app.py
 ```
 Navigate to http://localhost:5000/ in your web browser to access the app.
