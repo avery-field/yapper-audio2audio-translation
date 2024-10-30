@@ -2,6 +2,9 @@
 
 Yapper is an audio to audio translation application that uses a pipeline of HuggingFace transformer models to translate user-recorded speech from English to Spanish and vice-versa. 
 
+## Video Demo
+https://drive.google.com/file/d/1VkkDdqtdO2wuYlYQBO916PKOjqDguBH1/view?usp=sharing
+
 ## Installation
 Clone this repository and navigate to the project directory:
 
