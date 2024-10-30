@@ -1,30 +1,27 @@
-# Use the official Python 3.11 slim image as the base image
-FROM python:3.11-slim
+# Use a suitable base image
+FROM python:3.11
 
-# Install system dependencies needed for h5py and other packages
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    pkg-config \
-    libhdf5-dev \
-    libhdf5-serial-dev \
-    libhdf5-103 \
-    hdf5-tools \
-    libblas-dev \
-    liblapack-dev \
-    gfortran \
-    && rm -rf /var/lib/apt/lists/*
+# Install system dependencies including PortAudio and others
+RUN apt-get update && \
+    apt-get install -y \
+    portaudio19-dev \
+    libportaudio2 \
+    libportaudiocpp0 \
+    libsndfile1 \
+    ffmpeg && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set the working directory within the container
-WORKDIR /api-flask
+# Set the working directory
+WORKDIR /flask_webapp/flask_webapp
 
-# Copy the necessary files and directories into the container
-COPY . /api-flask
+# Copy requirements file and install dependencies
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Upgrade pip and install Python dependencies
-RUN pip3 install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+# Copy the rest of the application files
+COPY . .
 
-# Expose port 5000 for the Flask application
-EXPOSE 5000
+# Specify the command to run the app
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "flask_webapp.app:app"]
 
-# Define the command to run the Flask application using Gunicorn
-CMD ["gunicorn", "application:app", "-b", "0.0.0.0:5000", "-w", "4"]
