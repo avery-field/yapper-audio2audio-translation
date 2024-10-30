@@ -11,3 +11,4 @@ gTTS
 pydub
 sacremoses
 gunicorn
+h5py
