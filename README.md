@@ -11,9 +11,9 @@ flask-webapp/ <br />
 ├── translate_en2es.py <br />
 ├── translate_es2en.py <br />
 ├── templates/ <br />
-    └── index.html <br />
+____└── index.html <br />
 └── static/ <br />
-    └── translated_audio.wav <br />
+____└── translated_audio.wav <br />
 
 The audio to audio translation pipeline consists of three steps, each performed by a model accessed from HuggingFace. The first task is converting user recorded speech into text which was done using OpenAI's Whisper Automatic Speech Recognition model. The second task is taking that text and translating it from either English to Spanish or vice-verse using the Opus Machine Translation model developed at the University of Helsinki. The third task is converting that translated text back into audio using a Text to Speech model. For Spanish output, one of Meta's Massively Multilingual Speech model's finetuned on Chilean Spanish was used. For English output, Google's Text to Speech model was used.
 
